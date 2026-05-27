@@ -63,7 +63,11 @@ public class ArvoreAVL {
 
     // Remoções
     public ArvoreAVL remover(PacketRule elem) {
-        if (this.regra.getValor() == elem.getValor()) {
+        return remover(elem.getValor());
+    }
+
+    public ArvoreAVL remover(int valor) {
+        if (this.regra.getValor() == valor) {
             if (this.dir == null && this.esq == null) {   // Caso 1: folha
                 return null;
             } else if (this.esq != null && this.dir == null) {   // Caso 2: só filho esq
@@ -73,21 +77,20 @@ public class ArvoreAVL {
             } else {                                               // Caso 4: dois filhos
                 ArvoreAVL aux = this.esq;
                 while (aux.dir != null) aux = aux.dir;
+                int valorPredecessor = aux.getRegra().getValor();
                 this.regra = aux.getRegra();
-                aux.setRegra(elem);
-                this.esq = this.esq.remover(elem);
+                this.esq = this.esq.remover(valorPredecessor);
             }
-        } else if (elem.getValor() < this.regra.getValor()) {
+        } else if (valor < this.regra.getValor()) {
             if (this.esq == null) return this;
-            this.esq = this.esq.remover(elem);
+            this.esq = this.esq.remover(valor);
         } else {
             if (this.dir == null) return this;
-            this.dir = this.dir.remover(elem);
+            this.dir = this.dir.remover(valor);
         }
         this.calcularBalanceamento();
         return this.verificarBalanceamento();
     }
-
     // Buscas
     public boolean busca(int valor) {
         if (isEmpty()) return false;
@@ -152,39 +155,51 @@ public class ArvoreAVL {
         } else {
             this.bal = this.dir.calcularAltura() - this.esq.calcularAltura();
         }
-        if (this.dir != null) this.dir.calcularBalanceamento();
-        if (this.esq != null) this.esq.calcularBalanceamento();
     }
 
     public ArvoreAVL verificarBalanceamento() {
         if (this.bal >= 2) {
-            return (this.dir.getBalanceamento() >= 0)
-                    ? rotacaoSimplesDireita()
-                    : rotacaoDuplaDireita();
+            int balDir = (this.dir != null) ? this.dir.getBalanceamento() : 0;
+            if (balDir >= 0) {
+                return rotacaoEsquerda();             // RR
+            } else {
+                return rotacaoDuplaEsquerdaDireita(); // RL
+            }
         }
         if (this.bal <= -2) {
-            return (this.esq.getBalanceamento() <= 0)
-                    ? rotacaoSimplesEsquerda()
-                    : rotacaoDuplaEsquerda();
+            int balEsq = (this.esq != null) ? this.esq.getBalanceamento() : 0;
+            if (balEsq <= 0) {
+                return rotacaoDireita();              // LL
+            } else {
+                return rotacaoDuplaDireitaEsquerda(); // LR
+            }
         }
-        if (this.esq != null) this.esq = this.esq.verificarBalanceamento();
-        if (this.dir != null) this.dir = this.dir.verificarBalanceamento();
+        if (this.esq != null) {
+            this.esq.calcularBalanceamento();
+            this.esq = this.esq.verificarBalanceamento();
+        }
+        if (this.dir != null) {
+            this.dir.calcularBalanceamento();
+            this.dir = this.dir.verificarBalanceamento();
+        }
         return this;
     }
 
     // Rotações
-    public ArvoreAVL rotacaoSimplesDireita() {
-        ArvoreAVL filhoDir     = this.getDireita();
+    public ArvoreAVL rotacaoEsquerda() {
+        ArvoreAVL filhoDir = this.getDireita();
+        if (filhoDir == null) throw new IllegalStateException("rotacaoEsquerda: filho direito nulo");
         ArvoreAVL filhoDoFilho = filhoDir.getEsquerda();
-
+ 
         filhoDir.setEsq(this);
         this.setDir(filhoDoFilho);
         totalRotacoes++;
         return filhoDir;
     }
 
-    public ArvoreAVL rotacaoSimplesEsquerda() {
-        ArvoreAVL filhoEsq     = this.getEsquerda();
+    public ArvoreAVL rotacaoDireita() {
+        ArvoreAVL filhoEsq = this.getEsquerda();
+        if (filhoEsq == null) throw new IllegalStateException("rotacaoDireita: filho esquerdo nulo");
         ArvoreAVL filhoDoFilho = filhoEsq.getDireita();
 
         filhoEsq.setDir(this);
@@ -193,23 +208,7 @@ public class ArvoreAVL {
         return filhoEsq;
     }
 
-    public ArvoreAVL rotacaoDuplaDireita() {
-        ArvoreAVL filhoDir     = this.getDireita();
-        ArvoreAVL filhoDoFilho = filhoDir.getEsquerda();
-        ArvoreAVL noInserido   = filhoDoFilho.getDireita();
-
-        filhoDir.setEsq(noInserido);
-        filhoDoFilho.setDir(filhoDir);
-        this.setDir(filhoDoFilho);
-
-        ArvoreAVL novoFilhoDireita = this.getDireita();
-        this.setDir(null);
-        novoFilhoDireita.setEsq(this);
-        totalRotacoes += 2;
-        return novoFilhoDireita;
-    }
-
-    public ArvoreAVL rotacaoDuplaEsquerda() {
+    public ArvoreAVL rotacaoDuplaDireitaEsquerda() {
         ArvoreAVL filhoEsq     = this.getEsquerda();
         ArvoreAVL filhoDoFilho = filhoEsq.getDireita();
         ArvoreAVL noInserido   = filhoDoFilho.getEsquerda();
@@ -223,6 +222,22 @@ public class ArvoreAVL {
         novoFilhoEsquerda.setDir(this);
         totalRotacoes += 2;
         return novoFilhoEsquerda;
+    }
+
+    public ArvoreAVL rotacaoDuplaEsquerdaDireita() {
+        ArvoreAVL filhoDir     = this.getDireita();
+        ArvoreAVL filhoDoFilho = filhoDir.getEsquerda();
+        ArvoreAVL noInserido   = filhoDoFilho.getDireita();
+
+        filhoDir.setEsq(noInserido);
+        filhoDoFilho.setDir(filhoDir);
+        this.setDir(filhoDoFilho);
+
+        ArvoreAVL novoFilhoDireita = this.getDireita();
+        this.setDir(null);
+        novoFilhoDireita.setEsq(this);
+        totalRotacoes += 2;
+        return novoFilhoDireita;
     }
 
     // Print
