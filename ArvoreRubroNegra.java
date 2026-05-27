@@ -1,9 +1,9 @@
 public class ArvoreRubroNegra {
 
     private static final boolean VERMELHO = true;
-    private static final boolean PRETO    = false;
+    private static final boolean PRETO = false;
 
-    private class No {
+    class No {
         PacketRule regra;
         No esq, dir, pai;
         boolean cor;
@@ -25,7 +25,15 @@ public class ArvoreRubroNegra {
         }
 
         boolean ehVermelho() { return this.cor == VERMELHO; }
-        boolean ehPreto()    { return this.cor == PRETO;    }
+        boolean ehPreto() { return this.cor == PRETO;    }
+
+        String exportar() {
+            if (this.regra == null) return "NIL:P:false:false";
+            return this.regra.getValor()
+                    + ":" + (this.cor == VERMELHO ? "V" : "P")
+                    + ":" + (this.esq != null && this.esq.regra != null)
+                    + ":" + (this.dir != null && this.dir.regra != null);
+        }
     }
 
     private final No nil;
@@ -92,7 +100,7 @@ public class ArvoreRubroNegra {
     }
 
     private void corrigirInsercao(No z) {
-        while (z.pai.ehVermelho()) {
+        while (z.pai != nil && z.pai.pai != nil && z.pai.ehVermelho()) {
             if (z.pai == z.pai.pai.esq) {
                 No tio = z.pai.pai.dir;
 
