@@ -32,8 +32,13 @@ public class ArvoreAVL {
     public ArvoreAVL getEsquerda()            { return this.esq; }
     public void setEsq(ArvoreAVL esq)         { this.esq = esq; }
 
-    public int getBalanceamento()                    { return this.bal; }
-    public int getTotalRotacoes()                    { return this.totalRotacoes; }
+    public int getBalanceamento() { return this.bal; }
+    public int getTotalRotacoes() {
+        int total = this.totalRotacoes;
+        if (this.esq != null) total += this.esq.getTotalRotacoes();
+        if (this.dir != null) total += this.dir.getTotalRotacoes();
+        return total;
+    }
 
     public boolean isEmpty() { return this.regra == null; }
 
@@ -173,14 +178,6 @@ public class ArvoreAVL {
             } else {
                 return rotacaoDuplaDireitaEsquerda(); // LR
             }
-        }
-        if (this.esq != null) {
-            this.esq.calcularBalanceamento();
-            this.esq = this.esq.verificarBalanceamento();
-        }
-        if (this.dir != null) {
-            this.dir.calcularBalanceamento();
-            this.dir = this.dir.verificarBalanceamento();
         }
         return this;
     }
