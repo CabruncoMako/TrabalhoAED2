@@ -3,7 +3,7 @@ import java.util.Random;
 public class StressTest {
 
     private static final long SEED      = 42L;
-    private static final int[] VOLUMES  = { 10_000};;
+    private static final int[] VOLUMES = { 10_000, 100_000 };
     private static final int N_BUSCAS   = 1_000;
 
     private static long[] tempoInsercaoAVL = new long[VOLUMES.length];
