@@ -3,7 +3,7 @@ import java.util.Random;
 public class StressTest {
 
     private static final long SEED      = 42L;
-    private static final int[] VOLUMES = { 10_000, 100_000 };
+    private static final int[] VOLUMES = {  10_000, 100_000 };
     private static final int N_BUSCAS   = 1_000;
 
     private static long[] tempoInsercaoAVL = new long[VOLUMES.length];
@@ -57,8 +57,9 @@ public class StressTest {
         for (int v : remocoes) avl = avl.remover(new PacketRule(0, "", "", v));
         tempoRemocaoAVL[idx] = System.nanoTime() - inicio;
         System.out.printf("  [AVL] Remoção: %,d ns%n", tempoRemocaoAVL[idx]);
-        try { VerificadorAVL.imprimirRelatorio(avl); System.out.println("  [AVL] Invariante OK"); }
-        catch (IllegalStateException e) { System.out.println("  [AVL] FALHA: " + e.getMessage()); }
+        VerificadorAVL.ResultadoAuditoria resAVL = VerificadorAVL.auditar(avl);
+        System.out.println(resAVL);
+        System.out.println(resAVL.valida ? "  [AVL] Invariante OK" : "  [AVL] FALHA: " + resAVL.mensagem);
 
         System.out.println("\n  [RBT] Inserindo " + n + " regras...");
         ArvoreRubroNegra rbt = new ArvoreRubroNegra();
@@ -82,8 +83,9 @@ public class StressTest {
         for (int v : remocoes) rbt.remover(v);
         tempoRemocaoRBT[idx] = System.nanoTime() - inicio;
         System.out.printf("  [RBT] Remoção: %,d ns%n", tempoRemocaoRBT[idx]);
-        try { VerificadorRBT.imprimirRelatorio(rbt); System.out.println("  [RBT] Invariante OK"); }
-        catch (IllegalStateException e) { System.out.println("  [RBT] FALHA: " + e.getMessage()); }
+        VerificadorRBT.NoAuditoria resRBT = VerificadorRBT.auditar(rbt);
+        System.out.println(resRBT.mensagem);
+        System.out.println(resRBT.valida ? "  [RBT] ✅ Invariante OK" : "  [RBT] ❌ FALHA DE INVARIANTE");
     }
 
     private static int[] gerarValores(int n, long seed) {
