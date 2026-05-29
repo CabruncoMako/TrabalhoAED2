@@ -59,7 +59,6 @@ public class StressTest {
         System.out.printf("  [AVL] Remoção: %,d ns%n", tempoRemocaoAVL[idx]);
         VerificadorAVL.ResultadoAuditoria resAVL = VerificadorAVL.auditar(avl);
         System.out.println(resAVL);
-        System.out.println(resAVL.valida ? "  [AVL] Invariante OK" : "  [AVL] FALHA: " + resAVL.mensagem);
 
         System.out.println("\n  [RBT] Inserindo " + n + " regras...");
         ArvoreRubroNegra rbt = new ArvoreRubroNegra();
@@ -83,9 +82,8 @@ public class StressTest {
         for (int v : remocoes) rbt.remover(v);
         tempoRemocaoRBT[idx] = System.nanoTime() - inicio;
         System.out.printf("  [RBT] Remoção: %,d ns%n", tempoRemocaoRBT[idx]);
-        VerificadorRBT.NoAuditoria resRBT = VerificadorRBT.auditar(rbt);
-        System.out.println(resRBT.mensagem);
-        System.out.println(resRBT.valida ? "  [RBT] ✅ Invariante OK" : "  [RBT] ❌ FALHA DE INVARIANTE");
+       VerificadorRBT.ResultadoAuditoria resRBT = VerificadorRBT.auditar(rbt);
+       System.out.println(resRBT);
     }
 
     private static int[] gerarValores(int n, long seed) {
