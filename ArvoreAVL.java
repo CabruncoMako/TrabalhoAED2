@@ -208,6 +208,7 @@ public class ArvoreAVL {
     public ArvoreAVL rotacaoDuplaDireitaEsquerda() {
         ArvoreAVL filhoEsq     = this.getEsquerda();
         ArvoreAVL filhoDoFilho = filhoEsq.getDireita();
+        if (filhoDoFilho == null) { return rotacaoDireita(); }
         ArvoreAVL noInserido   = filhoDoFilho.getEsquerda();
 
         filhoEsq.setDir(noInserido);
@@ -224,7 +225,9 @@ public class ArvoreAVL {
     public ArvoreAVL rotacaoDuplaEsquerdaDireita() {
         ArvoreAVL filhoDir     = this.getDireita();
         ArvoreAVL filhoDoFilho = filhoDir.getEsquerda();
+        if (filhoDoFilho == null) { return rotacaoEsquerda(); }
         ArvoreAVL noInserido   = filhoDoFilho.getDireita();
+        if (noInserido == null) { return rotacaoEsquerda(); }
 
         filhoDir.setEsq(noInserido);
         filhoDoFilho.setDir(filhoDir);
