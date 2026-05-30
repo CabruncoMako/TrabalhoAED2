@@ -5,9 +5,9 @@ SDN-Scale: AVL vs Red-Black - Otimização de Roteamento e Análise de Trade-off
 
 Disciplina: Estrutura de Dados II  
 Professor: Ricardo Sekeff  
-Instituição: iCEV – Instituto de Ensino Superior, Teresina – PI
-Integrante 1: Pablo Canavarro
-Integrante 2: Gabriel Batista
+Instituição: iCEV – Instituto de Ensino Superior, Teresina – PI  
+Integrante 1: Pablo Canavarro  
+Integrante 2: Gabriel Batista  
 Integrante 3: Bruno Barbosa
 
 ---
@@ -27,17 +27,20 @@ O objetivo é determinar qual estrutura oferece menor latência em escala de nan
 ```
 SDN-Scale/
 │
-├── PacketRule.java           # Modelo de dados: ID, IP origem/destino, prioridade
-├── ArvoreAVL.java            # Árvore AVL — invariante |FB| ≤ 1
-├── ArvoreRubroNegra.java     # Árvore Red-Black — 5 propriedades de coloração
+├── PacketRule.java               # Modelo de dados: ID, IP origem/destino, prioridade
+├── ArvoreAVL.java                # Árvore AVL — invariante |FB| ≤ 1
+├── ArvoreRubroNegra.java         # Árvore Red-Black — 5 propriedades de coloração
 │
-├── StressTest.java           # [Integrante 2] Testes de carga com 100k entradas
-├── Graficos.java             # [Integrante 2] Geração de gráficos comparativos
+├── StressTest.java               # [Integrante 2] Testes de carga com 100k entradas
+├── Graficos.java                 # [Integrante 2] Geração de gráficos comparativos
 │
-├── VerificadorAVL.java       # [Integrante 3] Verificador de invariantes da AVL
-├── VerificadorRBT.java       # [Integrante 3] Verificador das 5 propriedades RBT
+├── VerificadorAVL.java           # [Integrante 3] Verificador de invariantes da AVL
+├── VerificadorRBT.java           # [Integrante 3] Verificador das 5 propriedades RBT
+├── AuditoriaComparativa.java     # [Integrante 3] Análise comparativa AVL vs RBT
+├── CODE_REVIEW.md                # [Integrante 3] Code review do código do Integrante 1
+├── CODE_REVIEW_STRESSTEST.md     # [Integrante 3] Code review do stress test do Integrante 2
 │
-├── postmortem_corrigido.pdf  # Relatório Post-Mortem (modelo SBC)
+├── postmortem_corrigido.pdf      # Relatório Post-Mortem (modelo SBC)
 └── README.md
 ```
 
@@ -56,9 +59,8 @@ javac StressTest.java
 java StressTest
 
 # Executar os verificadores de invariantes
-javac VerificadorAVL.java VerificadorRBT.java
-java VerificadorAVL
-java VerificadorRBT
+javac VerificadorAVL.java VerificadorRBT.java AuditoriaComparativa.java
+java AuditoriaComparativa
 ```
 
 ---
@@ -115,14 +117,31 @@ Representa uma regra de firewall com os campos `id`, `ipOrigem`, `ipDestino` e `
 - `corrigirRemocao()` com os 4 casos de double-black nos dois espelhos
 - Contadores `totalRotacoes` e `totalRecoloracoes` para auditoria
 
+### VerificadorAVL
+Auditor de invariantes da ArvoreAVL. Verifica:
+- `|FB| ≤ 1` em todos os nós
+- FB armazenado igual ao FB calculado
+- Propriedade BST (chave esq < raiz < chave dir)
+- Altura consistente em toda a árvore
+
+### VerificadorRBT
+Auditor das 5 propriedades fundamentais da Red-Black Tree. Verifica:
+- P2: raiz é preta
+- P4: filhos de nó vermelho são sempre pretos
+- P5: black-height uniforme em todos os caminhos raiz→NIL
+- Propriedade BST
+
+### AuditoriaComparativa
+Ponto de entrada unificado para auditoria. Executa inserção e remoção de 20% com seed fixa, valida as invariantes de ambas as árvores e imprime tabela comparativa de rotações e trade-offs.
+
 ---
 
 ## Divisão de Tarefas
 
 | Branch | Integrante | Responsabilidade |
 |---|---|---|
-| `integrante-1/estruturas` | Integrante 1 | `PacketRule`, `ArvoreAVL`, `ArvoreRubroNegra` |
-| `integrante-2/stress-test` | Integrante 2 | Testes de carga, coleta de tempos, gráficos |
-| `integrante-3/qa` | Integrante 3 | Verificadores de invariantes, code review, análise de trade-offs |
+| `integrante-1/estruturas` | Pablo Canavarro | `PacketRule`, `ArvoreAVL`, `ArvoreRubroNegra` |
+| `feature/stress-test` | Gabriel Batista | Testes de carga, coleta de tempos em ns, gráficos |
+| `Verificação` | Bruno Barbosa | Verificadores de invariantes, code reviews, análise de trade-offs |
 
 O merge de cada branch na `main` só foi autorizado após aprovação do Integrante 3 (code review obrigatório).
